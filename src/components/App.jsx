@@ -67,6 +67,7 @@ export default function App() {
     if (searchQuery) {
       getImages();
     }
+    // eslint-disable-next-line
   }, [searchQuery, activePage]);
 
   useEffect(() => {
@@ -74,6 +75,7 @@ export default function App() {
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
+    // eslint-disable-next-line
   }, []);
 
   const getImages = async () => {
