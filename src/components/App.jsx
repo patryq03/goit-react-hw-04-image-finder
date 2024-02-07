@@ -13,14 +13,15 @@ const apiKey = '41316122-8be1516af8b9dd89b7470b6b1';
 const perPage = 12;
 
 export default function App() {
-  const [images, setImages] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [activePage, setActivePage] = useState(1);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [totalImages, setTotalImages] = useState(0);
-  const [modalIsOpen, setModalIsOpen] = useState(false);
-  const [largeImageURL, setLargeImageURL] = useState([]);
+  
+  const [ images, setImages] = useState([]);
+  const [ isLoading, setIsLoading] = useState(false);
+  const [ error, setError] = useState(null);  
+  const [ activePage, setActivePage] = useState(1);
+  const [ searchQuery, setSearchQuery] = useState('');
+  const [ totalImages, setTotalImages ] = useState(0);
+  const [ modalIsOpen , setModalIsOpen ] = useState(false);
+  const [ largeImageURL, setLargeImageURL ] = useState([]);
 
   searchImages = query => {
     if (query.trim() === '') {
@@ -33,7 +34,7 @@ export default function App() {
   };
 
   loadMoreImages = () => {
-    setActivePage(prev => prev + 1);
+    setActivePage(prev => ( prev + 1 ));
   };
 
   componentDidUpdate = (prevProps, prevState) => {
@@ -72,13 +73,14 @@ export default function App() {
     if (evt.key === 'Escape') {
       this.closeModal();
     }
-  };
+  }
   useEffect(() => {
     window.addEventListener('keydown', this.handleKeyDown);
     return () => {
       window.removeEventListener('keydown', this.handleKeyDown);
     };
   }, []);
+  
 
   getImages = async () => {
     setIsLoading(true);
@@ -110,26 +112,29 @@ I couldn't find any images`);
     }
   };
 
-  return (
-    <div>
-      <Searchbar onSubmit={this.searchImages} />
-      <ImageGallery>
-        {images.map(image => (
-          <ImageGalleryItem
-            key={image.id}
-            prewImgUrl={image.webformatURL}
-            largeImgUrl={image.largeImageURL}
-            tags={image.tags}
-            handleClick={this.showModal}
-          />
-        ))}
-      </ImageGallery>
-      {isLoading && <Loader />}
-      {error && <p>Sth went wrong...{error.message}</p>}
-      {this.showLoadMore() > 0 && <Button handleClick={this.loadMoreImages} />}
-      {modalIsOpen && (
-        <Modal src={largeImageUrl} handleClick={this.handleClickModal} />
-      )}
-    </div>
-  );
-}
+
+    return (
+      <div>
+        <Searchbar onSubmit={this.searchImages} />
+        <ImageGallery>
+          {images.map(image => (
+            <ImageGalleryItem
+              key={image.id}
+              prewImgUrl={image.webformatURL}
+              largeImgUrl={image.largeImageURL}
+              tags={image.tags}
+              handleClick={this.showModal}
+            />
+          ))}
+        </ImageGallery>
+        {isLoading && <Loader />}
+        {error && <p>Sth went wrong...{error.message}</p>}
+        {this.showLoadMore() > 0 && (
+          <Button handleClick={this.loadMoreImages} />
+        )}
+        {modalIsOpen && (
+          <Modal src={largeImageUrl} handleClick={this.handleClickModal} />
+        )}
+      </div>
+    );
+  }
