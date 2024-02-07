@@ -1,26 +1,16 @@
 import propTypes from 'prop-types';
-import { Component } from 'react';
+import { useRef } from 'react';
 import css from './Searchbar.module.css';
 
-class Searchbar extends Component {
-  state = {
-    inputText: '',
-  };
+export default function Searchbar() {
+  const inputRef = useRef();
 
-  handleChange = event => {
-    this.setState({ inputText: event.target.value });
-  };
   handleSubmit = event => {
     const form = event.currentTarget;
     event.preventDefault();
-    this.props.onSubmit(this.state.inputText);
-    this.setState({
-      inputText: '',
-    });
+    onSubmit(inputRef.current.value);
     form.reset();
   };
-  render() {
-    const { inputText } = this.state;
     return (
       <header className={css.searchbar}>
         <form className={css.form} onSubmit={this.handleSubmit}>
@@ -28,8 +18,7 @@ class Searchbar extends Component {
             className={css.input}
             type="text"
             placeholder="Search images and photos"
-            value={inputText}
-            onChange={this.handleChange}
+            ref={inputRef}
           />
           <button type="submit" className={css.button}>
             <span className={css.buttonLabel}>Search</span>
@@ -38,10 +27,8 @@ class Searchbar extends Component {
       </header>
     );
   }
-}
 
 Searchbar.propTypes = {
   onSubmit: propTypes.func.isRequired,
 };
 
-export default Searchbar;

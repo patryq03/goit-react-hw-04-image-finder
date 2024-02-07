@@ -6,37 +6,34 @@ import Button from './Button/Button';
 import Modal from './Modal/Modal';
 import axios from 'axios';
 import Notiflix from 'notiflix';
+import { useState, useEffect } from 'react';
 
 axios.defaults.baseURL = 'https://pixabay.com/api/';
 const apiKey = '41316122-8be1516af8b9dd89b7470b6b1';
 const perPage = 12;
 
 export default function App() {
-  state = {
-    images: [],
-    isLoading: false,
-    error: null,
-    activePage: 1,
-    searchQuery: '',
-    totalImages: 0,
-    modalIsOpen: false,
-    largeImageUrl: '',
-  };
+  const [images, setImages] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [activePage, setActivePage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [totalImages, setTotalImages] = useState(0);
+  const [modalIsOpen, setModalIsOpen] = useState(false);
+  const [largeImageURL, setLargeImageURL] = useState([]);
 
   searchImages = query => {
     if (query.trim() === '') {
       Notiflix.Notify.info('Sorry, please provide a search word');
       return;
     }
-    this.setState({
-      images: [],
-      activePage: 1,
-      searchQuery: `${Date.now()}/${query}`,
-    });
+    setImages([]);
+    setActivePage(0);
+    setSearchQuery(`${Date.now()}/${query}`);
   };
 
   loadMoreImages = () => {
-    this.setState(prev => ({ activePage: prev.activePage + 1 }));
+    setActivePage(prev => prev + 1);
   };
 
   componentDidUpdate = (prevProps, prevState) => {
@@ -51,23 +48,18 @@ export default function App() {
   };
 
   showLoadMore = () => {
-    const { images, totalImages, activePage } = this.state;
     if (images.length > 0 && totalImages - perPage * activePage > 0) {
       return true;
     }
   };
 
   showModal = largeImageUrl => {
-    this.setState({
-      modalIsOpen: true,
-      largeImageUrl: largeImageUrl,
-    });
+    setModalIsOpen(true);
+    setLargeImageURL(largeImageUrl);
   };
 
   closeModal = () => {
-    this.setState({
-      modalIsOpen: false,
-    });
+    setModalIsOpen(false);
   };
 
   handleClickModal = evt => {
@@ -77,24 +69,19 @@ export default function App() {
   };
 
   handleKeyDown = evt => {
-    if (evt.key === 'Escape' && this.state.modalIsOpen) {
+    if (evt.key === 'Escape') {
       this.closeModal();
     }
   };
-
-  componentDidMount() {
+  useEffect(() => {
     window.addEventListener('keydown', this.handleKeyDown);
-  }
-
-  componentWillUnmount() {
-    window.removeEventListener('keydown', this.handleKeyDown);
-  }
+    return () => {
+      window.removeEventListener('keydown', this.handleKeyDown);
+    };
+  }, []);
 
   getImages = async () => {
-    this.setState({
-      isLoading: true,
-    });
-    const { activePage, searchQuery } = this.state;
+    setIsLoading(true);
     const separated = searchQuery.split('/');
     const exstractedQuery = separated[1];
     try {
@@ -117,40 +104,32 @@ I couldn't find any images`);
         totalImages: data.total,
       }));
     } catch (error) {
-      this.setState({
-        error,
-      });
+      setError(error);
     } finally {
-      this.setState({
-        isLoading: false,
-      });
+      setIsLoading(false);
     }
   };
 
-
-    const { images, isLoading, modalIsOpen, largeImageUrl, error } = this.state;
-    return (
-      <div>
-        <Searchbar onSubmit={this.searchImages} />
-        <ImageGallery>
-          {images.map(image => (
-            <ImageGalleryItem
-              key={image.id}
-              prewImgUrl={image.webformatURL}
-              largeImgUrl={image.largeImageURL}
-              tags={image.tags}
-              handleClick={this.showModal}
-            />
-          ))}
-        </ImageGallery>
-        {isLoading && <Loader />}
-        {error && <p>Sth went wrong...{error.message}</p>}
-        {this.showLoadMore() > 0 && (
-          <Button handleClick={this.loadMoreImages} />
-        )}
-        {modalIsOpen && (
-          <Modal src={largeImageUrl} handleClick={this.handleClickModal} />
-        )}
-      </div>
-    );
-  }
+  return (
+    <div>
+      <Searchbar onSubmit={this.searchImages} />
+      <ImageGallery>
+        {images.map(image => (
+          <ImageGalleryItem
+            key={image.id}
+            prewImgUrl={image.webformatURL}
+            largeImgUrl={image.largeImageURL}
+            tags={image.tags}
+            handleClick={this.showModal}
+          />
+        ))}
+      </ImageGallery>
+      {isLoading && <Loader />}
+      {error && <p>Sth went wrong...{error.message}</p>}
+      {this.showLoadMore() > 0 && <Button handleClick={this.loadMoreImages} />}
+      {modalIsOpen && (
+        <Modal src={largeImageUrl} handleClick={this.handleClickModal} />
+      )}
+    </div>
+  );
+}
