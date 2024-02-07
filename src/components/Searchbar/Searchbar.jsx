@@ -2,10 +2,10 @@ import propTypes from 'prop-types';
 import { useRef } from 'react';
 import css from './Searchbar.module.css';
 
-export default function Searchbar() {
+export default function Searchbar({ onSubmit }) {
   const inputRef = useRef();
 
-  handleSubmit = event => {
+  const handleSubmit = event => {
     const form = event.currentTarget;
     event.preventDefault();
     onSubmit(inputRef.current.value);
@@ -13,7 +13,7 @@ export default function Searchbar() {
   };
     return (
       <header className={css.searchbar}>
-        <form className={css.form} onSubmit={this.handleSubmit}>
+        <form className={css.form} onSubmit={handleSubmit}>
           <input
             className={css.input}
             type="text"

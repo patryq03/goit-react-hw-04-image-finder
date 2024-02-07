@@ -13,17 +13,16 @@ const apiKey = '41316122-8be1516af8b9dd89b7470b6b1';
 const perPage = 12;
 
 export default function App() {
-  
-  const [ images, setImages] = useState([]);
-  const [ isLoading, setIsLoading] = useState(false);
-  const [ error, setError] = useState(null);  
-  const [ activePage, setActivePage] = useState(1);
-  const [ searchQuery, setSearchQuery] = useState('');
-  const [ totalImages, setTotalImages ] = useState(0);
-  const [ modalIsOpen , setModalIsOpen ] = useState(false);
-  const [ largeImageURL, setLargeImageURL ] = useState([]);
+  const [images, setImages] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [activePage, setActivePage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [totalImages, setTotalImages] = useState(0);
+  const [modalIsOpen, setModalIsOpen] = useState(false);
+  const [largeImageURL, setLargeImageURL] = useState([]);
 
-  searchImages = query => {
+  const searchImages = query => {
     if (query.trim() === '') {
       Notiflix.Notify.info('Sorry, please provide a search word');
       return;
@@ -33,56 +32,51 @@ export default function App() {
     setSearchQuery(`${Date.now()}/${query}`);
   };
 
-  loadMoreImages = () => {
-    setActivePage(prev => ( prev + 1 ));
+  const loadMoreImages = () => {
+    setActivePage(prev => prev + 1);
   };
 
-  componentDidUpdate = (prevProps, prevState) => {
-    const prevQuery = prevState.searchQuery;
-    const nextQuery = this.state.searchQuery;
-    const prevPage = prevState.activePage;
-    const nexPage = this.state.activePage;
-
-    if (prevQuery !== nextQuery || prevPage !== nexPage) {
-      this.getImages();
+  useEffect(() => {
+    if (searchQuery) {
+      getImages();
     }
-  };
+  }, [searchQuery, activePage]);
 
-  showLoadMore = () => {
+  const showLoadMore = () => {
     if (images.length > 0 && totalImages - perPage * activePage > 0) {
       return true;
     }
   };
 
-  showModal = largeImageUrl => {
+  const showModal = largeImageURL => {
     setModalIsOpen(true);
-    setLargeImageURL(largeImageUrl);
+    setLargeImageURL(largeImageURL);
   };
 
-  closeModal = () => {
+  const closeModal = () => {
     setModalIsOpen(false);
   };
 
-  handleClickModal = evt => {
+  const handleClickModal = evt => {
     if (evt.target.nodeName !== 'IMG') {
-      this.closeModal();
+      closeModal();
     }
   };
 
-  handleKeyDown = evt => {
+  const handleKeyDown = evt => {
     if (evt.key === 'Escape') {
-      this.closeModal();
+      closeModal();
     }
-  }
+  };
+
   useEffect(() => {
-    window.addEventListener('keydown', this.handleKeyDown);
+    window.addEventListener('keydown', handleKeyDown);
     return () => {
-      window.removeEventListener('keydown', this.handleKeyDown);
+      window.removeEventListener('keydown', handleKeyDown);
     };
   }, []);
-  
 
-  getImages = async () => {
+  const getImages = async () => {
     setIsLoading(true);
     const separated = searchQuery.split('/');
     const exstractedQuery = separated[1];
@@ -101,10 +95,8 @@ export default function App() {
         Notiflix.Notify.warning(`
 I couldn't find any images`);
       }
-      this.setState(prevState => ({
-        images: [...prevState.images, ...data.hits],
-        totalImages: data.total,
-      }));
+      setImages(prev => [...prev, ...data.hits]);
+      setTotalImages(data.total);
     } catch (error) {
       setError(error);
     } finally {
@@ -112,29 +104,26 @@ I couldn't find any images`);
     }
   };
 
-
-    return (
-      <div>
-        <Searchbar onSubmit={this.searchImages} />
-        <ImageGallery>
-          {images.map(image => (
-            <ImageGalleryItem
-              key={image.id}
-              prewImgUrl={image.webformatURL}
-              largeImgUrl={image.largeImageURL}
-              tags={image.tags}
-              handleClick={this.showModal}
-            />
-          ))}
-        </ImageGallery>
-        {isLoading && <Loader />}
-        {error && <p>Sth went wrong...{error.message}</p>}
-        {this.showLoadMore() > 0 && (
-          <Button handleClick={this.loadMoreImages} />
-        )}
-        {modalIsOpen && (
-          <Modal src={largeImageUrl} handleClick={this.handleClickModal} />
-        )}
-      </div>
-    );
-  }
+  return (
+    <div>
+      <Searchbar onSubmit={searchImages} />
+      <ImageGallery>
+        {images.map(image => (
+          <ImageGalleryItem
+            key={image.id}
+            prewImgUrl={image.webformatURL}
+            largeImgUrl={image.largeImageURL}
+            tags={image.tags}
+            handleClick={showModal}
+          />
+        ))}
+      </ImageGallery>
+      {isLoading && <Loader />}
+      {error && <p>Sth went wrong...{error.message}</p>}
+      {showLoadMore() > 0 && <Button handleClick={loadMoreImages} />}
+      {modalIsOpen && (
+        <Modal src={largeImageURL} handleClick={handleClickModal} />
+      )}
+    </div>
+  );
+}
