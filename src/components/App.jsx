@@ -36,11 +36,6 @@ export default function App() {
     setActivePage(prev => prev + 1);
   };
 
-  useEffect(() => {
-    if (searchQuery) {
-      getImages();
-    }
-  }, [searchQuery, activePage]);
 
   const showLoadMore = () => {
     if (images.length > 0 && totalImages - perPage * activePage > 0) {
@@ -68,6 +63,12 @@ export default function App() {
       closeModal();
     }
   };
+
+  useEffect(() => {
+    if (searchQuery) {
+      getImages();
+    }
+  }, [searchQuery, activePage]);
 
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown);
